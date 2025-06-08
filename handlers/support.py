@@ -48,7 +48,7 @@ async def confirm_support(update: Update, context: ContextTypes.DEFAULT_TYPE):
 """, (worker[0], token, 'new'))
     conn.commit()
 
-    link = f"http://127.0.0.1:5000/chat/{token}/{telegram_id}"
+    link = f"https://support-panel-5uxc.onrender.com/chat/{token}/{telegram_id}"
     await query.edit_message_text(f"✅ Обращение создано. Перейдите по ссылке: {link}")
 
 # 👇 вот что нужно экспортировать
