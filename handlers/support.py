@@ -48,6 +48,7 @@ async def confirm_support(update: Update, context: ContextTypes.DEFAULT_TYPE):
     INSERT INTO support_request (worker_id, session_token, status, created_at)
     VALUES (%s, %s, %s, %s)
     """, (worker[0], token, 'new', datetime.utcnow()))
+    conn.commit()
 
     link = f"https://support-panel-5uxc.onrender.com/chat/{token}/{telegram_id}"
     await query.edit_message_text(f"✅ Обращение создано. Перейдите по ссылке: {link}")
