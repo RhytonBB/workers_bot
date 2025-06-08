@@ -3,6 +3,8 @@ from telegram.ext import ContextTypes, CommandHandler, CallbackQueryHandler
 from db import get_connection
 import uuid
 from telegram.ext import MessageHandler, filters
+from datetime import datetime
+
 
 async def support_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     telegram_id = update.effective_user.id
@@ -43,10 +45,9 @@ async def confirm_support(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     token = str(uuid.uuid4())
     cur.execute("""
-    INSERT INTO support_request (worker_id, session_token, status)
-    VALUES (%s, %s, %s)
-""", (worker[0], token, 'new'))
-    conn.commit()
+    INSERT INTO support_request (worker_id, session_token, status, created_at)
+    VALUES (%s, %s, %s, %s)
+    """, (worker[0], token, 'new', datetime.utcnow()))
 
     link = f"https://support-panel-5uxc.onrender.com/chat/{token}/{telegram_id}"
     await query.edit_message_text(f"✅ Обращение создано. Перейдите по ссылке: {link}")
