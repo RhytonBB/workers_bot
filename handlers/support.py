@@ -44,16 +44,28 @@ async def confirm_support(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return
 
     token = str(uuid.uuid4())
+    created_at = datetime.utcnow()
+
+    # 1. Создаём обращение
     cur.execute("""
-    INSERT INTO support_request (worker_id, session_token, status, created_at)
-    VALUES (%s, %s, %s, %s)
-    """, (worker[0], token, 'new', datetime.utcnow()))
+        INSERT INTO support_request (worker_id, session_token, status, created_at)
+        VALUES (%s, %s, %s, %s)
+        RETURNING id
+    """, (worker[0], token, 'new', created_at))
+    request_id = cur.fetchone()[0]
+
+    # 2. Добавляем авто-сообщение
+    cur.execute("""
+        INSERT INTO support_message (request_id, sender_role, text, created_at)
+        VALUES (%s, %s, %s, %s)
+    """, (request_id, 'admin', 'Ожидайте, оператор скоро подключится.', created_at))
+
     conn.commit()
 
     link = f"https://support-panel-5uxc.onrender.com/chat/{token}/{telegram_id}"
     await query.edit_message_text(f"✅ Обращение создано. Перейдите по ссылке: {link}")
 
-# 👇 вот что нужно экспортировать
+
 support_handlers = [
     CommandHandler("support", support_command),
     CallbackQueryHandler(confirm_support, pattern="^confirm_support$"),
